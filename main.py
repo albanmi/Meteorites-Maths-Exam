@@ -9,6 +9,7 @@ import seaborn as sns
 from scipy import optimize
 from math import *
 from scipy.stats import multivariate_normal
+from scipy.stats import gaussian_kde
 from mpl_toolkits.mplot3d import Axes3D
 
 ###Read the data
@@ -21,7 +22,7 @@ data = data.dropna()
 data["year"] = data["year"].str[6:10]
 data["year"] = data["year"].astype(int)
 data = data[data["year"] <= 2021]
-data = data[data["year"] >= 1974]
+data = data[data["year"] >= 1975]
 
 data_q1a = data[data['mass (g)'] >= 0.0]
 data_q1b = data[data['mass (g)'] <= 50000.0]
@@ -45,8 +46,11 @@ ax.set_yscale('log')
 
 
 ### Plot of occurences function of years
+plt.figure("Occurences function of years")
+counter = data.groupby(['year'])['year'].count().reset_index(name="count")
+ax = plt.scatter(counter["year"], counter["count"],color='brown')
 
-plt.figure("TOOOOO Occurences function of years")
+plt.figure("Occurences function of years with linear regression")
 counter = data.groupby(['year'])['year'].count().reset_index(name="count")
 ax = plt.scatter(counter["year"], counter["count"],color='brown')
 
@@ -98,12 +102,12 @@ points = gpd.GeoDataFrame(data, geometry = gpd.points_from_xy(tmp[1],tmp[0]))
 ## Taking the intersection of Oman and Meteor. coords.
 pointInPolys = sjoin(points, Oman, how='inner')
 
-
 fig, ax = plt.subplots(1, 1, figsize=(6, 6))
 ax.set_aspect('equal')
 Oman.plot(ax=ax, color='gray', edgecolor='black')
 ax.set_title('Oman\'s meteorites map')
 pointInPolys.plot(ax=ax, color='brown' ) 
+
 
 ## X density
 X=pointInPolys['geometry'].x
